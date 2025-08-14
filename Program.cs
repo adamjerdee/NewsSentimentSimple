@@ -6,12 +6,30 @@ using System.Text.Json;
 using VaderSharp2;
 using NewsSentimentSimple.Interfaces;
 using NewsSentimentSimple.Services;
+using NewsSentimentSimple.Setup;
 
 
 class Program
 {
     static void Main()
     {
+        try
+        {
+            var args = Environment.GetCommandLineArgs();
+            bool forceSetup = Array.Exists(args, a => string.Equals(a, "--setup", StringComparison.OrdinalIgnoreCase));
+
+            string cfgDir = Path.Combine(AppContext.BaseDirectory, "Config");
+            string cfgPath = Path.Combine(cfgDir, "AppSettings.json");
+
+            if (forceSetup || !File.Exists(cfgPath))
+            {
+                SetupWizard.RunInteractive(); // creates/updates Config/AppSettings.json
+            }
+        }
+        catch
+        {
+            // Ignore wizard errors and continue (your existing logic stays intact)
+        }
         // ------------ Config ------------
         const int headlinesPerTicker = 15;
         const int daysLookback = 3;
